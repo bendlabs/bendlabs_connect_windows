@@ -1,0 +1,261 @@
+<!--
+//*********************************************************
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+//*********************************************************
+-->
+<Page
+    x:Class="SDKTemplate.Scenario2_Client"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls.Chart"    
+    xmlns:telerikDataViz="using:Telerik.UI.Xaml.Controls.DataVisualization"
+    xmlns:telerikPrimitives="using:Telerik.UI.Xaml.Controls.Primitives"    
+    xmlns:local="using:SDKTemplate"
+    mc:Ignorable="d">
+    <ScrollViewer Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="12,10,12,12" VerticalScrollBarVisibility="Visible">
+        <StackPanel>
+            <TextBlock Style="{StaticResource SampleHeaderTextStyle}" TextWrapping="Wrap" Margin="0,10,0,0">
+                <Run x:Name="SelectedDeviceName" FontWeight="Bold"/><LineBreak />
+                <Run x:Name="SelectedDeviceId"/>
+            </TextBlock>
+            <Button x:Name="ConnectButton" Content="Connect" Click="{x:Bind ConnectButton_Click}" Margin="0,10,0,0"/>
+
+            <telerikPrimitives:RadBusyIndicator x:Name="connectingIndicator" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed" AnimationStyle="AnimationStyle2" Content="connecting..." IsActive="True"  />
+
+            <StackPanel x:Name="Panel_ModelSingle" Orientation="Vertical" Visibility="Collapsed" Margin="10">
+
+                <StackPanel Background="#444444" Margin="10" >
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0">
+                            <Run Foreground="Blue" Text="--- " />
+                            <Run Text="Angle:" />
+                        </TextBlock>
+                        <TextBlock x:Name="Value_Angle" Grid.Row="0" Grid.Column="1" Text="0.00" FontWeight="Bold"  />
+
+                        <TextBlock x:Name="Label_Stretch" Grid.Row="1" Grid.Column="0" Opacity="0.5">
+                            <Run Foreground="White" Text="--- " />
+                            <Run Text="Stretch:" />
+                        </TextBlock>
+                        <TextBlock x:Name="Value_Stretch" Grid.Row="1" Grid.Column="1" Text="0.00" Opacity="0.5" FontWeight="Bold" />
+
+                        <CheckBox x:Name="oneAxisAuto" Grid.Row="0" Grid.Column="4" Content="Auto-scale graph" Click="ChartAutoScale_Click"  />
+                        <CheckBox x:Name="Check_Stretch" Grid.Row="1" Grid.Column="4" Click="Checkbox_Stretch_Checked" Content="Enable Stretch"  />
+                    </Grid>
+                </StackPanel>
+
+                <telerik:RadCartesianChart x:Name="oneAxisChart" Height="250" MaxZoom="1,1000">
+                    <telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:DateTimeCategoricalAxis ShowLabels="False" GapLength="0"  />
+                    </telerik:RadCartesianChart.HorizontalAxis>
+
+                    <telerik:RadCartesianChart.VerticalAxis>
+                        <telerik:LinearAxis x:Name="oneAxisChartYAxis" Minimum="-225" Maximum="225" MajorStep="45" LabelFormat="{}{0:N0}" />
+                    </telerik:RadCartesianChart.VerticalAxis>
+
+                    <telerik:RadCartesianChart.Series>
+                        <telerik:SplineSeries x:Name="oneAxisChartBend"  ItemsSource="{Binding}" Stroke="Blue">
+                            
+                            <telerik:SplineSeries.ValueBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="bend" />
+                            </telerik:SplineSeries.ValueBinding>
+                            <telerik:SplineSeries.CategoryBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="time" />
+                            </telerik:SplineSeries.CategoryBinding>
+                        </telerik:SplineSeries>
+
+                        <!--
+                        <telerik:LineSeries x:Name="oneAxisChartStretch" Visibility="Collapsed" ItemsSource="{Binding}" Stroke="Red">
+                            <telerik:LineSeries.ValueBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="stretch" />
+                            </telerik:LineSeries.ValueBinding>
+                            <telerik:LineSeries.CategoryBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="time" />
+                            </telerik:LineSeries.CategoryBinding>
+                        </telerik:LineSeries>
+                        -->
+                    </telerik:RadCartesianChart.Series>
+                </telerik:RadCartesianChart>
+                <telerikDataViz:RadBulletGraph x:Name="oneAxisBulletStretch" Visibility="Collapsed" Margin="10"
+                                               EndValue="35" TickStep="1" LabelStep="10" Height="50" IsAnimated="False"
+                                               FeaturedMeasureBrush="LightGray" FeaturedMeasure="1" />
+
+                <telerikPrimitives:RadExpanderControl Margin="10" Background="#444444" HeaderBackground="#333333">
+                    <telerikPrimitives:RadExpanderControl.Content>
+                        <TextBlock Margin="10">Calibration</TextBlock>
+                    </telerikPrimitives:RadExpanderControl.Content>
+                    <telerikPrimitives:RadExpanderControl.ExpandableContent>
+                        <StackPanel>
+                            <Grid x:Name="oneAxisCalibrationChoosePanel" Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button x:Name="calibrateBend" Grid.Column="0" Content="Calibrate Bend" Click="{x:Bind CalibrationBend_Click}" />
+                                <Button x:Name="calibrateStretch" Grid.Column="1" Content="Calibrate Stretch" Click="{x:Bind CalibrationStretch_Click}" />
+                                <Button x:Name="calibrateBendStretch" Grid.Column="0" Content="Calibrate Bend and Stretch" Click="{x:Bind CalibrationBend_Click}" Visibility="Collapsed" />
+                                <Button Grid.Column="2" Content="Clear All Calibrations" Click="{x:Bind CalibrationClear_Click}" />
+                            </Grid>
+                            <StackPanel x:Name="oneAxisCalibrationExecutePanel" Orientation="Vertical" Margin="10,0,10,10" Visibility="Collapsed">
+                                <TextBlock x:Name="oneAxisCalibrationHeader" FontSize="16" />
+                                <TextBlock x:Name="oneAxisCalibrationText" FontSize="12" TextWrapping="WrapWholeWords" />
+                                <Button x:Name="oneAxisCalibrationButton" Click="{x:Bind OneAxisCalibrate_Click}" Margin="20,10,0,0" />
+
+                                <CheckBox x:Name="checkboxOneAxisCalibrationCountdown" Click="Checkbox_Calibrate_Countdown_Checked" Content="Calibration Countdown" Margin="10,0,0,-10" HorizontalAlignment="Right" FlowDirection="RightToLeft">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="Path">
+                                            <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                        </Style>
+                                    </CheckBox.Resources>
+                                    <CheckBox.RenderTransform>
+                                        <ScaleTransform ScaleX="0.75" ScaleY="0.75" />
+                                    </CheckBox.RenderTransform>
+                                </CheckBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </telerikPrimitives:RadExpanderControl.ExpandableContent>
+                </telerikPrimitives:RadExpanderControl>
+            </StackPanel>
+            <StackPanel x:Name="Panel_ModelDual" Orientation="Vertical" Visibility="Collapsed" Margin="10">
+                <StackPanel Background="#444444" >
+                    <Grid Margin="10" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock x:Name="Label_Horizontal" Grid.Row="0" Grid.Column="0">
+                        <Run Foreground="Red" Text="--- " />
+                        <Run Text="Horizontal Angle:" />
+                        </TextBlock>
+                        <TextBlock x:Name="Value_Horizontal" Grid.Row="0" Grid.Column="1" Text="0.00" FontWeight="Bold"  />
+
+                        <TextBlock x:Name="Label_Vertical" Grid.Row="1" Grid.Column="0">
+                        <Run Foreground="Blue" Text="--- " />
+                        <Run Text="Vertical Angle:" />
+                        </TextBlock>
+                        <TextBlock x:Name="Value_Vertical" Grid.Row="1" Grid.Column="1" Text="0.00" FontWeight="Bold" />
+
+                        <CheckBox x:Name="twoAxisAuto" Grid.Row="1" Grid.Column="4" Content="Auto-scale graph" Click="ChartAutoScale_Click" />
+                    </Grid>
+
+                </StackPanel>
+
+                <telerik:RadCartesianChart x:Name="twoAxisChart" Height="250" MaxZoom="1,1000">
+                    <telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:DateTimeCategoricalAxis ShowLabels="False" GapLength="0"  />
+                    </telerik:RadCartesianChart.HorizontalAxis>
+
+                    <telerik:RadCartesianChart.VerticalAxis>
+                        <telerik:LinearAxis x:Name="twoAxisChartYAxis" Minimum="-225" Maximum="225" MajorStep="45" LabelFormat="{}{0:N0}" />
+                    </telerik:RadCartesianChart.VerticalAxis>
+
+                    <telerik:RadCartesianChart.Series>
+                        <telerik:SplineSeries x:Name="twoAxisChartX" ItemsSource="{Binding}" Stroke="Blue">
+                            <telerik:SplineSeries.ValueBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="x" />
+                            </telerik:SplineSeries.ValueBinding>
+                            <telerik:SplineSeries.CategoryBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="time" />
+                            </telerik:SplineSeries.CategoryBinding>
+                        </telerik:SplineSeries>
+
+                        <telerik:SplineSeries x:Name="twoAxisChartY" ItemsSource="{Binding}" Stroke="Red">
+                            <telerik:SplineSeries.ValueBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="y" />
+                            </telerik:SplineSeries.ValueBinding>
+                            <telerik:SplineSeries.CategoryBinding>
+                                <telerik:PropertyNameDataPointBinding PropertyName="time" />
+                            </telerik:SplineSeries.CategoryBinding>
+                        </telerik:SplineSeries>
+                    </telerik:RadCartesianChart.Series>
+                </telerik:RadCartesianChart>
+                <telerikPrimitives:RadExpanderControl Margin="10" Background="#444444" HeaderBackground="#333333">
+                    <telerikPrimitives:RadExpanderControl.Content>
+                        <TextBlock Margin="10">Calibration</TextBlock>
+                    </telerikPrimitives:RadExpanderControl.Content>
+                    <telerikPrimitives:RadExpanderControl.ExpandableContent>
+                        <StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="10,0,10,0">
+                                <TextBlock x:Name="twoAxisCalibrationHeader" FontSize="16" />
+                                <TextBlock x:Name="twoAxisCalibrationText" FontSize="12" TextWrapping="WrapWholeWords" />
+                                <Button x:Name="twoAxisCalibrationButton" Click="{x:Bind TwoAxisCalibrate_Click}" Margin="20,10,0,0" />
+
+                                <Button x:Name="twoAxisCalibrationClearButton" Content="Clear calibration" Click="{x:Bind CalibrationClear_Click}" Margin="0,30,0,0" />
+                            </StackPanel>
+                            <CheckBox x:Name="checkboxTwoAxisCalibrationCountdown" Click="Checkbox_Calibrate_Countdown_Checked" Content="Calibration Countdown" Margin="10,-5,10,-4" HorizontalAlignment="Right" FlowDirection="RightToLeft">
+                                <CheckBox.Resources>
+                                    <Style TargetType="Path">
+                                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                    </Style>
+                                </CheckBox.Resources>
+                                <CheckBox.RenderTransform>
+                                    <ScaleTransform ScaleX="0.75" ScaleY="0.75" />
+                                </CheckBox.RenderTransform>
+                            </CheckBox>
+                        </StackPanel>
+                    </telerikPrimitives:RadExpanderControl.ExpandableContent>
+                </telerikPrimitives:RadExpanderControl>
+            </StackPanel>
+
+            <telerikPrimitives:RadExpanderControl x:Name="Panel_DataLogging" Margin="20,10,20,10" Background="#444444" HeaderBackground="#333333" Visibility="Collapsed">
+                <telerikPrimitives:RadExpanderControl.Content>
+                    <TextBlock Margin="10">Data Logging</TextBlock>
+                </telerikPrimitives:RadExpanderControl.Content>
+                <telerikPrimitives:RadExpanderControl.ExpandableContent>
+                    <StackPanel Orientation="Vertical" Margin="10,0,10,10">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,10,0,0">
+                            <TextBlock FontSize="14" TextWrapping="WrapWholeWords" Text="Log sensor data to csv file. Data stored at: " />
+                            <HyperlinkButton x:Name="dataLoggingFolderLink" Content="/Documents/BendLabs/" Click="{x:Bind DataDirectory_Click}" Margin="10,-5,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,10,0,0">
+                            <TextBlock Text="CSV file name prefix: " Margin="0,0,10,0" />
+                            <TextBox x:Name="dataLoggingFileName" Text="" Margin="0,-5,0,0" />
+                            <TextBlock FontSize="10" FontStyle="Italic" Text=" suffix will be _date_time.csv (MM-dd-yyyy_HH-mm-ss)" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,10,0,0">
+                            <TextBlock Text="Create new csv file every: " Margin="0,0,10,0" />
+                            <ComboBox x:Name="dataLoggingNewFileTime" Margin="0,-5,0,0" />
+                            <TextBlock Text=" minutes" />
+                        </StackPanel>
+                        <Button x:Name="dataLoggingStartButton" Content="Start" Click="{x:Bind DataLoggingStart_Click}" Margin="20,10,0,0" />
+                    </StackPanel>
+                </telerikPrimitives:RadExpanderControl.ExpandableContent>
+            </telerikPrimitives:RadExpanderControl>
+
+            <StackPanel x:Name="CharacteristicWritePanel" Margin="0,10,0,0" Visibility="Collapsed">
+                <TextBox x:Name="CharacteristicWriteValue" PlaceholderText="Enter text/number to send"/>
+                <Button Content="Write Value as Number" Click="{x:Bind CharacteristicWriteButtonInt_Click}" Margin="0,10,0,0"/>
+                <Button Content="Write Value as UTF-8" Click="{x:Bind CharacteristicWriteButton_Click}" Margin="0,10,0,0"/>
+            </StackPanel>
+            <TextBlock x:Name="CharacteristicLatestValue" Margin="0,10,0,0"/>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
